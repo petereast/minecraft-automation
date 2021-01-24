@@ -11,5 +11,7 @@ class App {
 }
 
 fun main(args: Array<String>) {
+    val r = RandomIdentifierProvider()
+    println(r.getIdentifier())
     println(App().greeting)
 }

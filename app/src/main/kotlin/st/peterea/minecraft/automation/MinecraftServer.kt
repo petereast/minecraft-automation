@@ -44,23 +44,21 @@ class DemoStartupScript : StartupScript {
     }
 }
 
-interface MinecraftServerIdentifier {
-    fun getIdentifier(): String
-}
-
-class RandomIdentifierProvider: MinecraftServerIdentifier {
-  override fun getIdentifier(): String = "example-server"
-}
-
 class MinecraftServer constructor(provider: CloudProvider, identifierProvider: MinecraftServerIdentifier) {
     val cloudProvider: CloudProvider = provider
     val identifierProvider: MinecraftServerIdentifier = identifierProvider
+
     fun createNew() {
 
         // Somehow choose an SSH key
         val sshKey = this.cloudProvider.getSshKeys().first()
 
-        val server = this.cloudProvider.createNewServer(this.identifierProvider.getIdentifier(), sshKey, DemoStartupScript())
+        val server = this.cloudProvider.createNewServer(
+            this.identifierProvider.getIdentifier(),
+            sshKey,
+            DemoStartupScript()
+        )
+
         server.start()
 
         // Create a fresh volume eventually
