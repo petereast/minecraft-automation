@@ -20,6 +20,7 @@ class MinecraftServerTest {
         class MockProvider : CloudProvider {
             override fun createNewServer(identifier: String, sshKey: SshKey, startingScript: StartupScript?): VirtualServer {
                 assertEquals(SshKey("sshKey1").id, sshKey.id, "The correct SSH key is selected")
+                assertEquals("testing-server", identifier)
                 createCalls += 1
                 return MockVirtualServer()
             }
@@ -29,8 +30,12 @@ class MinecraftServerTest {
             }
         }
 
+        class MockIdentifierProvider : MinecraftServerIdentifier {
+            override fun getIdentifier(): String = "testing-server"
+        }
+
         val mockCloudProvider = MockProvider()
-        val minecraftServer = MinecraftServer(mockCloudProvider)
+        val minecraftServer = MinecraftServer(mockCloudProvider, MockIdentifierProvider())
 
         assertNotNull(minecraftServer, "MinecraftServer cannot be null")
 
