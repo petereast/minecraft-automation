@@ -11,7 +11,11 @@ class App {
 }
 
 fun main(args: Array<String>) {
-    val r = RandomIdentifierProvider()
-    println(r.getIdentifier())
-    println(App().greeting)
+    val rip = RandomIdentifierProvider()
+    val digitalOcean = DigitalOcean()
+
+    println("Starting")
+    val mc = MinecraftServer(digitalOcean, rip)
+    mc.createNew()
+    println("Done")
 }
