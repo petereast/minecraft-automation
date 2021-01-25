@@ -19,3 +19,11 @@ A tool to automate provisioning and de-provisioning a minecraft server.
 - [ ] Create an image of the volume
 - [ ] Destroy the volume
 - [ ] Restore a volume from an image
+
+## Step 4: Create a WebUI for this
+- [ ] Create a WebServer (using server-side rendered pages)
+  - [ ] Needs some very basic user management (I don't want people spending all my money on Minecraft servers!)
+- [ ] Connect that WebServer to the existing library
+- [ ] Store the state of different Minecraft servers & implement account limits e.t.c
+
+## Step 5: Profit
