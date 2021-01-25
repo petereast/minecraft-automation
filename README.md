@@ -7,7 +7,7 @@ A tool to automate provisioning and de-provisioning a minecraft server.
 
 # Iterations
 ## Milestone 1: Create empty servers
-- [ ] Create a server and run a fresh instance of Minecraft on it.
+- [x] Create a server and run a fresh instance of Minecraft on it.
 - [ ] Tear down that server.
 
 ## Milestone 2: Create servers with existing worlds in them
