@@ -18,8 +18,8 @@ class MinecraftServerTest {
             override fun assignIp(ip: FloatingIp) {}
         }
         class MockProvider : CloudProvider {
-            override fun createNewServer(identifier: String, sshKey: SshKey, startingScript: StartupScript?): VirtualServer {
-                assertEquals(SshKey("sshKey1").id, sshKey.id, "The correct SSH key is selected")
+            override fun createNewServer(identifier: String, sshKeys: List<SshKey>, startingScript: StartupScript?): VirtualServer {
+                assertEquals(SshKey("sshKey1").id, sshKeys.first().id, "The correct SSH key is selected")
                 assertEquals("testing-server", identifier)
                 createCalls += 1
                 return MockVirtualServer()
