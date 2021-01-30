@@ -35,6 +35,8 @@ dependencies {
 
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    // Use typesafe config
+    compile("io.github.config4k:config4k:0.4.2")
 }
 
 application {

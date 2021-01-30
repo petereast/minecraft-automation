@@ -15,6 +15,7 @@ class MinecraftServerTest {
             override fun start() { }
             override fun stop() { }
             override fun getIp() = "192.168.0.1"
+            override fun getId() = ""
             override fun assignIp(ip: FloatingIp) {}
         }
         class MockProvider : CloudProvider {
@@ -27,6 +28,10 @@ class MinecraftServerTest {
             override fun getSshKeys(): List<SshKey> {
                 getSshKeysCalls += 1
                 return listOf(SshKey("sshKey1"), SshKey("SomethingElse"))
+            }
+
+            override fun destroyInstance(identifier: String) {
+                assertEquals(identifier, "testing-server")
             }
         }
 

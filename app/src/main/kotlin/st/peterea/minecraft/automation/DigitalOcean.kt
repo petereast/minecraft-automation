@@ -7,10 +7,13 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-class DigitalOceanVirtualServer : VirtualServer {
+class DigitalOceanVirtualServer constructor(id: String) : VirtualServer {
+    val droplet_id: String = id
     override fun start() { }
     override fun stop() { }
     override fun getIp() = ""
+
+    override fun getId() = this.droplet_id
 
     override fun assignIp(ip: FloatingIp) { }
 }
@@ -35,7 +38,16 @@ class DigitalOcean : CloudProvider {
         val tags: List<String> = listOf("minecraft-server", "auto-create")
     }
 
-    class NewDropletResponse
+    class NewDropletResponse(
+        val droplet: DropletResponse
+    )
+    class DropletResponse(
+        val id: Int,
+        val name: String,
+        val status: String,
+        @Json(name = "size_slug")
+        val sizeSlug: String
+    )
 
     override fun createNewServer(identifier: String, sshKey: List<SshKey>, startingScript: StartupScript?): VirtualServer {
         // Create a droplet
@@ -43,19 +55,25 @@ class DigitalOcean : CloudProvider {
         val droplet = NewDropletRequest(identifier, "s-1vcpu-2gb", sshKey, startingScript?.genereateScript())
 
         val request = HttpRequest.newBuilder(URI.create("https://api.digitalocean.com/v2/droplets"))
-            .header("Authorization", "Bearer ${this.authToken}") // TODO: Load the DO key from a secret somewhere.
+            .header("Authorization", "Bearer ${this.authToken}")
             .header("Content-Type", "application/json")
             .POST(
                 HttpRequest.BodyPublishers.ofString(this.klaxon.toJsonString(droplet))
             ).build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-        // TODO: Parse the response
         println(response.statusCode())
-        println(response.body())
-
-        return DigitalOceanVirtualServer()
+        if (response.statusCode() == 202) {
+            val responseJson = this.klaxon.parse<NewDropletResponse>(response.body())
+            if (responseJson?.droplet?.id != null) {
+                // If we can't deserialise this, throw an error!
+                return DigitalOceanVirtualServer(responseJson.droplet.id.toString())
+            } else {
+                throw Exception("Response did not contain an ID")
+            }
+        } else {
+            throw Exception("aaaaaa")
+        }
     }
 
     class DigitalOceanSshKey(
@@ -75,7 +93,7 @@ class DigitalOcean : CloudProvider {
 
     override fun getSshKeys(): List<SshKey> {
         val request = HttpRequest.newBuilder(URI.create("https://api.digitalocean.com/v2/account/keys"))
-            .header("Authorization", "Bearer ${this.authToken}") // TODO: Load the DO key from a secret somewhere.
+            .header("Authorization", "Bearer ${this.authToken}")
             .header("Content-Type", "application/json")
             .GET().build()
 
@@ -88,5 +106,19 @@ class DigitalOcean : CloudProvider {
         val response = this.klaxon.parse<GetSshKeysResponse>(rawResponse.body())
 
         return (response?.sshKeys ?: listOf()).map({ key -> key.toSshKey() })
+    }
+
+    override fun destroyInstance(server: VirtualServer) {
+        val id = server.getId()
+        val request = HttpRequest.newBuilder(URI.create("https://api.digitalocean.com/v2/droplets/$id"))
+            .header("Authorization", "Bearer ${this.authToken}")
+            .header("Content-Type", "application/json")
+            .DELETE().build()
+
+        val response = this.client.send(request, HttpResponse.BodyHandlers.ofString())
+
+        if (response.statusCode() != 204) {
+            throw InternalError(response.body())
+        }
     }
 }

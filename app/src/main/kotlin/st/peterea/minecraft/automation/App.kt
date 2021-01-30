@@ -11,11 +11,21 @@ class App {
 }
 
 fun main(args: Array<String>) {
+
     val rip = RandomIdentifierProvider()
     val digitalOcean = DigitalOcean()
 
     println("Starting")
     val mc = MinecraftServer(digitalOcean, rip)
     mc.createNew()
+
+    println("Server created, waiting to destroy...")
+    for (i in 0..8) {
+        println("wating $i")
+        Thread.sleep(1000 * 60)
+    }
+    println("Destroying server...")
+    mc.destroyServer()
+
     println("Done")
 }
